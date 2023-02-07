@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:scorpion_plus/api/apis.dart';
 import 'package:scorpion_plus/main.dart';
+import 'package:scorpion_plus/models/chat_user.dart';
 import 'package:scorpion_plus/widgets/chat_user_card.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -11,6 +12,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  List<ChatUser> list = [];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,13 +35,41 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Icon(Icons.add_comment_rounded),
         ),
       ),
-      body: ListView.builder(
-          itemCount: 16,
-          padding: EdgeInsets.only(top: mq.height * .01),
-          physics: BouncingScrollPhysics(),
-          itemBuilder: (context, index) {
-            return const ChatUserCard();
-          }),
+      body: StreamBuilder(
+        stream: APIs.firestore.collection('users').snapshots(),
+        builder: (context, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.waiting:
+            case ConnectionState.none:
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            case ConnectionState.active:
+            case ConnectionState.done:
+              final data = snapshot.data?.docs;
+              list =
+                  data?.map((e) => ChatUser.fromJson(e.data())).toList() ?? [];
+              if (list.isNotEmpty) {
+                return ListView.builder(
+                    itemCount: list.length,
+                    padding: EdgeInsets.only(top: mq.height * .01),
+                    physics: BouncingScrollPhysics(),
+                    itemBuilder: (context, index) {
+                      return ChatUserCard(
+                        user: list[index],
+                      );
+                      // return Text('Name: ${list[index]}');
+                    });
+              } else {
+                return const Center(
+                    child: Text(
+                  'No Connections Found!',
+                  style: TextStyle(fontSize: 20),
+                ));
+              }
+          }
+        },
+      ),
     );
   }
 }
