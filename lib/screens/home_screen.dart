@@ -4,6 +4,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:scorpion_plus/api/apis.dart';
 import 'package:scorpion_plus/main.dart';
 import 'package:scorpion_plus/models/chat_user.dart';
+import 'package:scorpion_plus/screens/profile_screen.dart';
 import 'package:scorpion_plus/widgets/chat_user_card.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -15,12 +16,25 @@ class _HomeScreenState extends State<HomeScreen> {
   List<ChatUser> list = [];
 
   @override
+  void initState() {
+    super.initState();
+    APIs.getSelfInfo();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         actions: [
           IconButton(onPressed: () {}, icon: Icon(Icons.search)),
-          IconButton(onPressed: () {}, icon: Icon(Icons.more_vert))
+          IconButton(
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => ProfileScreen(user: APIs.me)));
+              },
+              icon: Icon(Icons.more_vert))
         ],
         leading: Icon(CupertinoIcons.home),
         title: Text('Scorpion+'),
@@ -36,7 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       body: StreamBuilder(
-        stream: APIs.firestore.collection('users').snapshots(),
+        stream: APIs.getAllUsers(),
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.waiting:
