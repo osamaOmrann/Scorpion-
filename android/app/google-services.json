@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "267546551176",
+    "project_id": "scorpion-plus-ii",
+    "storage_bucket": "scorpion-plus-ii.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:267546551176:android:f85982b9f8582e89e7903d",
+        "android_client_info": {
+          "package_name": "com.example.scorpion_plus"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "267546551176-r78qo0l1tsjmonitdmpg7bskgi6o8imh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.scorpion_plus",
+            "certificate_hash": "05ba79ef9e7477d0cb446a65ff02ca0360e4670a"
+          }
+        },
+        {
+          "client_id": "267546551176-8kl2gujdukl9oavvgf68226p1b6kavn6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDgDjh0mnrB8P1VLxSogNEcf_59MJRNi2M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "267546551176-8kl2gujdukl9oavvgf68226p1b6kavn6.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "267546551176-tn44rdb3qjf7ccvib3ers8g0vi4233q9.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.scorpionPlus"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
