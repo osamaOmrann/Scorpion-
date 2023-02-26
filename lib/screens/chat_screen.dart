@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:scorpion_plus/api/apis.dart';
 import 'package:scorpion_plus/main.dart';
 import 'package:scorpion_plus/models/chat_user.dart';
+import 'package:scorpion_plus/models/message.dart';
+import 'package:scorpion_plus/widgets/message_card.dart';
 
 class ChatScreen extends StatefulWidget {
   final ChatUser user;
@@ -18,6 +20,8 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  List<Message> _list = [];
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -26,6 +30,7 @@ class _ChatScreenState extends State<ChatScreen> {
           automaticallyImplyLeading: false,
           flexibleSpace: _appBar(),
         ),
+        backgroundColor: Color.fromARGB(255, 234, 248, 255),
         body: Column(
           children: [
             Expanded(
@@ -37,15 +42,30 @@ class _ChatScreenState extends State<ChatScreen> {
                   case ConnectionState.none:
                     return Center(
                       child: CircularProgressIndicator(),
-                    );
-                  case ConnectionState.active:
-                  case ConnectionState.done:
-                    final data = snapshot.data?.docs;
+                        );
+                      case ConnectionState.active:
+                      case ConnectionState.done:
+                        final data = snapshot.data?.docs;
                     log('Data: ${jsonEncode(data![0].data())}');
                     /*  _list =
                         data?.map((e) => ChatUser.fromJson(e.data())).toList() ??
                             [];*/
-                    final _list = ['Hi', 'Hello'];
+                    // final _list = ['Hi', 'Hello'];
+                    _list.clear();
+                    _list.add(Message(
+                        msg: 'Hii',
+                        toId: 'xyz',
+                        read: '',
+                        type: Type.text,
+                        fromId: APIs.user.uid,
+                        sent: '12:00 AM'));
+                    _list.add(Message(
+                        msg: 'Hello',
+                        toId: APIs.user.uid,
+                        read: '',
+                        type: Type.text,
+                        fromId: 'xyz',
+                        sent: '12:05 AM'));
 
                     if (_list.isNotEmpty) {
                       return ListView.builder(
@@ -53,18 +73,20 @@ class _ChatScreenState extends State<ChatScreen> {
                           padding: EdgeInsets.only(top: mq.height * .01),
                           physics: BouncingScrollPhysics(),
                           itemBuilder: (context, index) {
-                            return Text('Message: ${_list[index]}');
+                            return MessageCard(
+                              message: _list[index],
+                            );
                           });
                     } else {
                       return const Center(
-                          child: Text(
-                        'Say Hi! 👋',
-                        style: TextStyle(fontSize: 20),
-                      ));
+                              child: Text(
+                                'Say Hi! 👋',
+                                style: TextStyle(fontSize: 20),
+                              ));
+                        }
                     }
-                }
-              },
-            )),
+                  },
+                )),
             _chatInput()
           ],
         ),
