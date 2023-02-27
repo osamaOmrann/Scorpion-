@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:developer';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +19,8 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   List<Message> _list = [];
 
+  final _textController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -35,38 +34,18 @@ class _ChatScreenState extends State<ChatScreen> {
           children: [
             Expanded(
                 child: StreamBuilder(
-              stream: APIs.getAllMessages(),
+                  stream: APIs.getAllMessages(widget.user),
               builder: (context, snapshot) {
                 switch (snapshot.connectionState) {
                   case ConnectionState.waiting:
                   case ConnectionState.none:
-                    return Center(
-                      child: CircularProgressIndicator(),
-                        );
-                      case ConnectionState.active:
-                      case ConnectionState.done:
-                        final data = snapshot.data?.docs;
-                    log('Data: ${jsonEncode(data![0].data())}');
-                    /*  _list =
-                        data?.map((e) => ChatUser.fromJson(e.data())).toList() ??
-                            [];*/
-                    // final _list = ['Hi', 'Hello'];
-                    _list.clear();
-                    _list.add(Message(
-                        msg: 'Hii',
-                        toId: 'xyz',
-                        read: '',
-                        type: Type.text,
-                        fromId: APIs.user.uid,
-                        sent: '12:00 AM'));
-                    _list.add(Message(
-                        msg: 'Hello',
-                        toId: APIs.user.uid,
-                        read: '',
-                        type: Type.text,
-                        fromId: 'xyz',
-                        sent: '12:05 AM'));
-
+                    return SizedBox();
+                  case ConnectionState.active:
+                  case ConnectionState.done:
+                    final data = snapshot.data?.docs;
+                    _list =
+                        data?.map((e) => Message.fromJson(e.data())).toList() ??
+                            [];
                     if (_list.isNotEmpty) {
                       return ListView.builder(
                           itemCount: _list.length,
@@ -79,14 +58,14 @@ class _ChatScreenState extends State<ChatScreen> {
                           });
                     } else {
                       return const Center(
-                              child: Text(
-                                'Say Hi! 👋',
-                                style: TextStyle(fontSize: 20),
-                              ));
-                        }
+                          child: Text(
+                        'Say Hi! 👋',
+                        style: TextStyle(fontSize: 20),
+                      ));
                     }
-                  },
-                )),
+                }
+              },
+            )),
             _chatInput()
           ],
         ),
@@ -113,7 +92,7 @@ class _ChatScreenState extends State<ChatScreen> {
               imageUrl: widget.user.image,
               // placeholder: (context, url) => CircularProgressIndicator(),
               errorWidget: (context, url, error) =>
-              const CircleAvatar(child: Icon(CupertinoIcons.person)),
+                  const CircleAvatar(child: Icon(CupertinoIcons.person)),
             ),
           ),
           SizedBox(
@@ -168,6 +147,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       )),
                   Expanded(
                     child: TextField(
+                      controller: _textController,
                       keyboardType: TextInputType.multiline,
                       maxLines: null,
                       decoration: InputDecoration(
@@ -200,7 +180,12 @@ class _ChatScreenState extends State<ChatScreen> {
           MaterialButton(
             padding: EdgeInsets.only(top: 10, bottom: 10, right: 5, left: 10),
             minWidth: 0,
-            onPressed: () {},
+            onPressed: () {
+              if (_textController.text.isNotEmpty) {
+                APIs.sendMessage(widget.user, _textController.text);
+                _textController.text = '';
+              }
+            },
             shape: CircleBorder(),
             color: Colors.green,
             child: Icon(Icons.send, color: Colors.white, size: 28),

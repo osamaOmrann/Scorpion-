@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:scorpion_plus/api/apis.dart';
+import 'package:scorpion_plus/helper/my_date_util.dart';
 import 'package:scorpion_plus/models/message.dart';
 
 class MessageCard extends StatefulWidget {
@@ -20,6 +21,9 @@ class _MessageCardState extends State<MessageCard> {
   }
 
   Widget _blueMessage() {
+    if (widget.message.read.isNotEmpty) {
+      APIs.updateMessageReadStatus(widget.message);
+    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -43,9 +47,10 @@ class _MessageCardState extends State<MessageCard> {
         ),
         Padding(
           padding:
-              EdgeInsets.only(right: MediaQuery.of(context).size.width * .04),
+          EdgeInsets.only(right: MediaQuery.of(context).size.width * .04),
           child: Text(
-            widget.message.sent,
+            MyDateUtil.getFormattedTime(
+                context: context, time: widget.message.sent),
             style: TextStyle(fontSize: 13, color: Colors.black54),
           ),
         ),
@@ -62,16 +67,18 @@ class _MessageCardState extends State<MessageCard> {
             SizedBox(
               width: MediaQuery.of(context).size.width * .04,
             ),
-            Icon(
-              Icons.done_all_rounded,
-              color: Colors.blue,
-              size: 20,
-            ),
+            if (widget.message.read.isNotEmpty)
+              Icon(
+                Icons.done_all_rounded,
+                color: Colors.blue,
+                size: 20,
+              ),
             SizedBox(
               width: 2,
             ),
             Text(
-              widget.message.read + ' 12:00 AM',
+              MyDateUtil.getFormattedTime(
+                  context: context, time: widget.message.sent),
               style: TextStyle(fontSize: 13, color: Colors.black54),
             ),
           ],
