@@ -39,7 +39,7 @@ class APIs {
         id: user.uid,
         name: auth.currentUser!.displayName.toString(),
         email: user.email.toString(),
-        about: 'Hay, I\'m Using Scorpion+',
+        about: 'Hay, I\'m Using Scorpion+ 😃',
         image: user.photoURL.toString(),
         createdAt: time,
         lastActive: time,
@@ -79,6 +79,21 @@ class APIs {
         .collection('users')
         .doc(user.uid)
         .update({'image': me.image});
+  }
+
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getUserInfo(
+      ChatUser chatUser) {
+    return firestore
+        .collection('users')
+        .where('id', isEqualTo: chatUser.id)
+        .snapshots();
+  }
+
+  static Future<void> updateActiveStatus(bool isOnline) async {
+    firestore.collection('users').doc(user.uid).update({
+      'isOnline': isOnline,
+      'lastActive': DateTime.now().millisecondsSinceEpoch.toString()
+    });
   }
 
   static String getConversationID(String id) => user.uid.hashCode <= id.hashCode

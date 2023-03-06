@@ -7,6 +7,7 @@ import 'package:scorpion_plus/main.dart';
 import 'package:scorpion_plus/models/chat_user.dart';
 import 'package:scorpion_plus/models/message.dart';
 import 'package:scorpion_plus/screens/chat_screen.dart';
+import 'package:scorpion_plus/widgets/dialogs/profile_dialog.dart';
 
 class ChatUserCard extends StatefulWidget {
   final ChatUser user;
@@ -44,15 +45,24 @@ class _ChatUserCardState extends State<ChatUserCard> {
                   data?.map((e) => Message.fromJson(e.data())).toList() ?? [];
               if (list.isNotEmpty) _message = list[0];
               return ListTile(
-                leading: ClipRRect(
-                  borderRadius: BorderRadius.circular(mq.height * .03),
-                  child: CachedNetworkImage(
-                    width: mq.height * .055,
-                    height: mq.height * .055,
-                    imageUrl: widget.user.image,
-                    // placeholder: (context, url) => CircularProgressIndicator(),
-                    errorWidget: (context, url, error) =>
-                        const CircleAvatar(child: Icon(CupertinoIcons.person)),
+                leading: InkWell(
+                  onTap: () {
+                    showDialog(
+                        context: context,
+                        builder: (_) => ProfileDialog(
+                              user: widget.user,
+                            ));
+                  },
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(mq.height * .03),
+                    child: CachedNetworkImage(
+                      width: mq.height * .055,
+                      height: mq.height * .055,
+                      imageUrl: widget.user.image,
+                      // placeholder: (context, url) => CircularProgressIndicator(),
+                      errorWidget: (context, url, error) => const CircleAvatar(
+                          child: Icon(CupertinoIcons.person)),
+                    ),
                   ),
                 ),
                 title: Text(widget.user.name),

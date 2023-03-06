@@ -1,5 +1,8 @@
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:scorpion_plus/api/apis.dart';
 import 'package:scorpion_plus/main.dart';
@@ -21,6 +24,17 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     APIs.getSelfInfo();
+    APIs.updateActiveStatus(true);
+    SystemChannels.lifecycle.setMessageHandler((message) {
+      log('message: $message');
+      if (APIs.auth.currentUser != null) {
+        if (message.toString().contains('resume'))
+          APIs.updateActiveStatus(true);
+        if (message.toString().contains('pause'))
+          APIs.updateActiveStatus(false);
+      }
+      return Future.value(message);
+    });
   }
 
   @override
@@ -62,25 +76,25 @@ class _HomeScreenState extends State<HomeScreen> {
             leading: Icon(CupertinoIcons.home),
             title: _isSearching
                 ? TextField(
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintText: 'Name, Email, ...',
-                    ),
-                    autofocus: true,
-                    style: TextStyle(fontSize: 17, letterSpacing: .5),
-                    onChanged: (val) {
-                      _searchList.clear();
-                      for (var i in _list) {
-                        if (i.name.toLowerCase().contains(val.toLowerCase()) ||
-                            i.email.toLowerCase().contains(val.toLowerCase())) {
-                          _searchList.add(i);
-                        }
-                        setState(() {
-                          _searchList;
-                        });
-                      }
-                    },
-                  )
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                hintText: 'Name, Email, ...',
+              ),
+              autofocus: true,
+              style: TextStyle(fontSize: 17, letterSpacing: .5),
+              onChanged: (val) {
+                _searchList.clear();
+                for (var i in _list) {
+                  if (i.name.toLowerCase().contains(val.toLowerCase()) ||
+                      i.email.toLowerCase().contains(val.toLowerCase())) {
+                    _searchList.add(i);
+                  }
+                  setState(() {
+                    _searchList;
+                  });
+                }
+              },
+            )
                 : Text('Scorpion+'),
           ),
           floatingActionButton: Padding(
@@ -111,7 +125,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   if (_list.isNotEmpty) {
                     return ListView.builder(
                         itemCount:
-                            _isSearching ? _searchList.length : _list.length,
+                        _isSearching ? _searchList.length : _list.length,
                         padding: EdgeInsets.only(top: mq.height * .01),
                         physics: BouncingScrollPhysics(),
                         itemBuilder: (context, index) {
@@ -125,9 +139,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   } else {
                     return const Center(
                         child: Text(
-                      'No Connections Found!',
-                      style: TextStyle(fontSize: 20),
-                    ));
+                          'No Connections Found!',
+                          style: TextStyle(fontSize: 20),
+                        ));
                   }
               }
             },
