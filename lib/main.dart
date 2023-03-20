@@ -1,7 +1,11 @@
+import 'dart:developer';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_notification_channel/flutter_notification_channel.dart';
+import 'package:flutter_notification_channel/notification_importance.dart';
 import 'package:scorpion_plus/screens/splash_screen.dart';
 
 import 'firebase_options.dart';
@@ -20,13 +24,14 @@ main() {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   SystemChrome.setPreferredOrientations(
-          [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown])
+      [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown])
       .then((value) async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
     await FirebaseMessaging.instance.getToken();
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    _initializeFirebase();
     runApp(MyApp());
   });
 }
@@ -41,8 +46,8 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
           appBarTheme: AppBarTheme(
-        titleTextStyle: TextStyle(
-            color: Colors.black, fontWeight: FontWeight.normal, fontSize: 19),
+            titleTextStyle: TextStyle(
+                color: Colors.black, fontWeight: FontWeight.normal, fontSize: 19),
         iconTheme: IconThemeData(color: Colors.black),
         centerTitle: true,
         elevation: 1,
@@ -52,4 +57,15 @@ class MyApp extends StatelessWidget {
       // home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
+}
+
+_initializeFirebase() async {
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  var result = await FlutterNotificationChannel.registerNotificationChannel(
+    description: 'For Showing Message Notification',
+    id: 'chats',
+    importance: NotificationImportance.IMPORTANCE_HIGH,
+    name: 'Chats',
+  );
+  log('\nNotification Channel Result $result');
 }
