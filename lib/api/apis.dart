@@ -134,7 +134,8 @@ class APIs {
         .update({'image': me.image});
   }
 
-  static Stream<QuerySnapshot<Map<String, dynamic>>> getUserInfo(ChatUser chatUser) {
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getUserInfo(
+      ChatUser chatUser) {
     return firestore
         .collection('users')
         .where('id', isEqualTo: chatUser.id)
@@ -153,14 +154,16 @@ class APIs {
       ? '${user.uid}_$id'
       : '${id}_${user.uid}';
 
-  static Stream<QuerySnapshot<Map<String, dynamic>>> getAllMessages(ChatUser user) {
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getAllMessages(
+      ChatUser user) {
     return firestore
         .collection('chats/${getConversationID(user.id)}/messages/')
         .orderBy('sent', descending: true)
         .snapshots();
   }
 
-  static Future<void> sendMessage(ChatUser chatUser, String msg, Type type) async {
+  static Future<void> sendMessage(
+      ChatUser chatUser, String msg, Type type) async {
     final time = DateTime.now().millisecondsSinceEpoch.toString();
 
     final Message message = Message(
@@ -184,7 +187,8 @@ class APIs {
         .update({'read': DateTime.now().millisecondsSinceEpoch.toString()});
   }
 
-  static Stream<QuerySnapshot<Map<String, dynamic>>> getLastMessage(ChatUser user) {
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getLastMessage(
+      ChatUser user) {
     return firestore
         .collection('chats/${getConversationID(user.id)}/messages/')
         .orderBy('sent', descending: true)
@@ -203,5 +207,14 @@ class APIs {
     });
     final imageUrl = await ref.getDownloadURL();
     await sendMessage(chatUser, imageUrl, Type.image);
+  }
+
+  static Future<void> deleteMessage(Message message) async {
+    await firestore
+        .collection('chats/${getConversationID(message.toId)}/messages/')
+        .doc(message.sent)
+        .delete();
+    if (message.type == Type.image)
+      await storage.refFromURL(message.msg).delete();
   }
 }
