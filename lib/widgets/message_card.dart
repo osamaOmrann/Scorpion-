@@ -56,30 +56,30 @@ class _MessageCardState extends State<MessageCard> {
                 vertical: MediaQuery.of(context).size.height * .01),
             child: widget.message.type == Type.text
                 ? Text(
-              widget.message.msg,
-              style: TextStyle(fontSize: 15, color: Colors.black87),
-            )
+                    widget.message.msg,
+                    style: TextStyle(fontSize: 15, color: Colors.black87),
+                  )
                 : ClipRRect(
-              borderRadius: BorderRadius.circular(15),
-              child: CachedNetworkImage(
-                imageUrl: widget.message.msg,
-                placeholder: (context, url) => Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
+                    borderRadius: BorderRadius.circular(15),
+                    child: CachedNetworkImage(
+                      imageUrl: widget.message.msg,
+                      placeholder: (context, url) => Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => Icon(
+                        CupertinoIcons.photo_fill_on_rectangle_fill,
+                        size: 70,
+                      ),
+                    ),
                   ),
-                ),
-                errorWidget: (context, url, error) => Icon(
-                  CupertinoIcons.photo_fill_on_rectangle_fill,
-                  size: 70,
-                ),
-              ),
-            ),
           ),
         ),
         Padding(
           padding:
-          EdgeInsets.only(right: MediaQuery.of(context).size.width * .04),
+              EdgeInsets.only(right: MediaQuery.of(context).size.width * .04),
           child: Text(
             MyDateUtil.getFormattedTime(
                 context: context, time: widget.message.sent),
@@ -132,18 +132,18 @@ class _MessageCardState extends State<MessageCard> {
                 vertical: MediaQuery.of(context).size.height * .01),
             child: widget.message.type == Type.text
                 ? Text(
-              widget.message.msg,
-              style: TextStyle(fontSize: 15, color: Colors.black87),
-            )
+                    widget.message.msg,
+                    style: TextStyle(fontSize: 15, color: Colors.black87),
+                  )
                 : ClipRRect(
-              borderRadius: BorderRadius.circular(15),
-              child: CachedNetworkImage(
-                imageUrl: widget.message.msg,
-                placeholder: (context, url) => Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-                errorWidget: (context, url, error) => Icon(
+                    borderRadius: BorderRadius.circular(15),
+                    child: CachedNetworkImage(
+                      imageUrl: widget.message.msg,
+                      placeholder: (context, url) => Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                      errorWidget: (context, url, error) => Icon(
                         CupertinoIcons.photo_fill_on_rectangle_fill,
                         size: 70,
                       ),
@@ -222,7 +222,10 @@ class _MessageCardState extends State<MessageCard> {
                       size: 26,
                     ),
                     name: 'edit message',
-                    onTap: () {}),
+                    onTap: () {
+                      Navigator.pop(context);
+                      _showMessageUpdateDialog();
+                    }),
               if (isMe)
                 _OptionItem(
                     icon: Icon(
@@ -264,6 +267,55 @@ class _MessageCardState extends State<MessageCard> {
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(20), topRight: Radius.circular(20))));
+  }
+
+  void _showMessageUpdateDialog() {
+    String updatedMsg = widget.message.msg;
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        contentPadding:
+            EdgeInsets.only(left: 24, right: 24, top: 20, bottom: 10),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(children: [
+          Icon(
+            CupertinoIcons.text_bubble,
+            color: Colors.blue,
+            size: 28,
+          ),
+          Text(' update message')
+        ]),
+        content: TextFormField(
+          initialValue: updatedMsg,
+          maxLines: null,
+          onChanged: (value) => updatedMsg = value,
+          decoration: InputDecoration(
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(15))),
+        ),
+        actions: [
+          MaterialButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text(
+              'cancel',
+              style: TextStyle(color: Colors.blue, fontSize: 16),
+            ),
+          ),
+          MaterialButton(
+            onPressed: () {
+              Navigator.pop(context);
+              APIs.updateMessage(widget.message, updatedMsg);
+            },
+            child: Text(
+              'update',
+              style: TextStyle(color: Colors.blue, fontSize: 16),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

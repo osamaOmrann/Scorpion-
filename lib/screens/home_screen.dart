@@ -3,8 +3,8 @@ import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:scorpion_plus/api/apis.dart';
+import 'package:scorpion_plus/helper/dialogs.dart';
 import 'package:scorpion_plus/main.dart';
 import 'package:scorpion_plus/models/chat_user.dart';
 import 'package:scorpion_plus/screens/profile_screen.dart';
@@ -99,15 +99,14 @@ class _HomeScreenState extends State<HomeScreen> {
           floatingActionButton: Padding(
             padding: const EdgeInsets.only(bottom: 10),
             child: FloatingActionButton(
-              onPressed: () async {
-                await APIs.auth.signOut();
-                await GoogleSignIn().signOut();
+              onPressed: () {
+                _addScorpionDialog();
               },
               child: Icon(Icons.add_comment_rounded),
             ),
           ),
           body: StreamBuilder(
-            stream: APIs.getAllUsers(),
+            stream: APIs.getMyUsersIDs(),
             builder: (context, snapshot) {
               switch (snapshot.connectionState) {
                 case ConnectionState.waiting:
@@ -117,35 +116,110 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 case ConnectionState.active:
                 case ConnectionState.done:
-                  final data = snapshot.data?.docs;
-                  _list =
-                      data?.map((e) => ChatUser.fromJson(e.data())).toList() ??
-                          [];
-                  if (_list.isNotEmpty) {
-                    return ListView.builder(
-                        itemCount:
-                        _isSearching ? _searchList.length : _list.length,
-                        padding: EdgeInsets.only(top: mq.height * .01),
-                        physics: BouncingScrollPhysics(),
-                        itemBuilder: (context, index) {
-                          return ChatUserCard(
-                            user: _isSearching
-                                ? _searchList[index]
-                                : _list[index],
+                  return StreamBuilder(
+                    stream: APIs.getAllUsers(
+                        snapshot.data?.docs.map((e) => e.id).toList() ?? []),
+                    builder: (context, snapshot) {
+                      switch (snapshot.connectionState) {
+                        case ConnectionState.waiting:
+                        case ConnectionState.none:
+                          return Center(
+                            child: CircularProgressIndicator(),
                           );
-                          // return Text('Name: ${list[index]}');
-                        });
-                  } else {
-                    return const Center(
-                        child: Text(
-                          'No Connections Found!',
-                          style: TextStyle(fontSize: 20),
-                        ));
-                  }
+                        case ConnectionState.active:
+                        case ConnectionState.done:
+                          final data = snapshot.data?.docs;
+                          _list = data
+                                  ?.map((e) => ChatUser.fromJson(e.data()))
+                                  .toList() ??
+                              [];
+                          if (_list.isNotEmpty) {
+                            return ListView.builder(
+                                itemCount: _isSearching
+                                    ? _searchList.length
+                                    : _list.length,
+                                padding: EdgeInsets.only(top: mq.height * .01),
+                                physics: BouncingScrollPhysics(),
+                                itemBuilder: (context, index) {
+                                  return ChatUserCard(
+                                    user: _isSearching
+                                        ? _searchList[index]
+                                        : _list[index],
+                                  );
+                                  // return Text('Name: ${list[index]}');
+                                });
+                          } else {
+                            return const Center(
+                                child: Text(
+                              'No Connections Found!',
+                              style: TextStyle(fontSize: 20),
+                            ));
+                          }
+                      }
+                    },
+                  );
               }
             },
           ),
         ),
+      ),
+    );
+  }
+
+  void _addScorpionDialog() {
+    String email = '';
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        contentPadding:
+            EdgeInsets.only(left: 24, right: 24, top: 20, bottom: 10),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(children: [
+          Icon(
+            CupertinoIcons.person_add,
+            color: Colors.blue,
+            size: 28,
+          ),
+          Text('  Add user')
+        ]),
+        content: TextFormField(
+          maxLines: null,
+          onChanged: (value) => email = value,
+          decoration: InputDecoration(
+              hintText: 'Email ID',
+              prefixIcon: Icon(
+                CupertinoIcons.mail_solid,
+                color: Colors.blue,
+              ),
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(15))),
+        ),
+        actions: [
+          MaterialButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text(
+              'cancel',
+              style: TextStyle(color: Colors.blue, fontSize: 16),
+            ),
+          ),
+          MaterialButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              if (email.isNotEmpty)
+                await APIs.addChatUser(email).then((value) {
+                  if (!value)
+                    Dialogs.showSnackbar(
+                        context, 'There is no users with this e-mail');
+                });
+            },
+            child: Text(
+              'add',
+              style: TextStyle(color: Colors.blue, fontSize: 16),
+            ),
+          ),
+        ],
       ),
     );
   }
