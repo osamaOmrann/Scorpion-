@@ -15,6 +15,8 @@ For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
 
+Scorpion+ Is An Advanced Chat App
+
 App Icon:
 ![PicsArt_03-30-11 28 49](https://user-images.githubusercontent.com/110188886/228798593-5cad833f-1ac1-4a98-853c-d9cebe80c83f.jpg)
 
